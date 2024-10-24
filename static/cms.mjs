@@ -1,0 +1,107 @@
+/**
+ * Sets up the uploader from a form element
+ * @param {HTMLFormElement} el root element
+ */
+function setupUploader(el) {
+    /** @type{Element} */
+    const imageBucket = el.querySelector("#image-bucket")
+    /** @type{Element} */
+    const imageBucketThumbnails = imageBucket.querySelector('#image-bucket-thumbnails')
+    /** @type{HTMLButtonElement} */
+    const submitButton = el.querySelector('button[type=submit]')
+
+    /** @type{File[]} */
+    let filecache = []
+    let isProcessing = false
+
+    function setIsProcessing(is) {
+        isProcessing = is
+    }
+
+    /**
+     * Takes file objects and updates the thumbnails showing each uploaded image
+     * @param {File[]} files 
+     */
+    function updateThumbnails(files) {
+        filecache = [...filecache, ...files]
+        function createImage(file) {
+            const image = document.createElement('img')
+            image.src = URL.createObjectURL(file)
+            image.alt = file.name
+            return image
+        }
+
+        function createRemoveButton(file, index) {
+            const removeButton = document.createElement('button')
+            removeButton.innerHTML = '&times;'
+            removeButton.addEventListener('click', function (/** @type{Event} */ event) {
+                filecache = filecache.filter((_, i) => i !== index)
+                event.target.parentNode.parentNode.removeChild(event.target.parentNode)
+                submitButton.disabled = filecache.length === 0
+            })
+            return removeButton
+        }
+
+        files.forEach((file, index) => {
+            const thumbnail = document.createElement('div')
+            thumbnail.appendChild(createImage(file))
+            thumbnail.appendChild(createRemoveButton(file, index))
+            imageBucketThumbnails.appendChild(thumbnail)
+        })
+        submitButton.disabled = filecache.length === 0
+    }
+
+    imageBucket.addEventListener('dragover', function (event) {
+        event.preventDefault()
+    }, false)
+
+    imageBucket.addEventListener('drop', function (/** @type{DragEvent} */ event) {
+        event.preventDefault()
+        if (event.dataTransfer.items) {
+            updateThumbnails([
+                ...Array.from(event.dataTransfer.items)
+                    .filter(
+                        (item) => item.kind === "file" && item.type.startsWith("image/")
+                    )
+                    .map((item) => item.getAsFile())
+                    .filter((x) => x !== null)
+            ])
+        }
+    }, false)
+
+    el.addEventListener('submit', function (event) {
+        event.preventDefault()
+        const formData = new FormData();
+        /** @type{HTMLInputElement | null} */
+        const section = el.querySelector('input[name=section]')
+        filecache.forEach((file) => formData.append("files", file));
+        fetch("/api/openai/vision", { method: "POST", body: formData })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!data.success) {
+                    throw new Error("Failed to process images");
+                }
+                const payload = data.response.choices[0].message.content;
+                if (payload.startsWith("```json") && payload.endsWith("```")) {
+                    console.log(JSON.parse(payload.slice(7, -3)), section.value)
+                } else {
+                    throw new Error("Failed to parse response");
+                }
+            })
+            .finally(() => setIsProcessing(false));
+    }, false)
+}
+
+function setupEditor(el) {
+    console.log('setting up entry editor on el', el)
+}
+
+const uploaderEl = document.querySelector('#uploader')
+if (uploaderEl) {
+    setupUploader(uploaderEl)
+}
+
+const editorEl = document.querySelector('#editor')
+if (editorEl) {
+    setupEditor(editorEl)
+}

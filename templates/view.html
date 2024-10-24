@@ -1,0 +1,52 @@
+$def with (entry)
+
+<form id="editor" action="." method="post">
+    <div class="col-50p">
+        <div class="field">
+            <label for="name">Title</label>
+            <input id="title" name="title" value="$entry.title" placeholder="Title" />
+        </div>
+        <div class="field">
+            <label for="mediaType">Type</label>
+            <input value="$entry.mediaType" id="mediaType" name="mediaType" />
+        </div>
+        <div class="field">
+            <label for="publishedBy">Published By</label>
+            <input value="$entry.publishedBy" id="publishedBy" name="publishedBy" />
+        </div>
+        <div class="field">
+            <label for="publishedLocation">Published Location</label>
+            <input value="$entry.publishedLocation" id="publishedLocation" name="publishedLocation" />
+        </div>
+        <div class="field">
+            <label for="editionYear">Edition Year</label>
+            <input value="$entry.editionYear" id="editionYear" name="editionYear" />
+        </div>
+        <div class="field">
+            <label for="catalogNumber">Catalog</label>
+            <input value="$entry.catalogNumber" id="catalogNumber" name="catalogNumber" />
+        </div>
+    </div>
+    <div class="col-50p">
+        <div class="field">
+            <label for="author">Author</label>
+            <input value="$entry.author" id="author" name="author" />
+        </div>
+        <div class="field">
+            <label for="section">Section</label>
+            <input value="$entry.section" id="section" name="section" />
+        </div>
+        <div class="field">
+            <label for="publishedOn">Published On</label>
+            <input value="$entry.publishedOn" id="publishedOn" name="publishedOn" />
+        </div>
+        <div class="field">
+            <label for="edition">Edition</label>
+            <input value="$entry.edition" id="edition" name="edition" />
+        </div>
+        <div class="field">
+            <label for="serialNumber">ISBN</label>
+            <input value="$entry.serialNumber" id="serialNumber" name="serialNumber" />
+        </div>
+    </div>
+</form>
