@@ -13,7 +13,7 @@ $def with (library)
   </form>
 </div>
 <div class="row">
-  <table>
+  <table id="library">
     <thead>
       <tr>
         <th>Title</th>
@@ -28,8 +28,8 @@ $def with (library)
       <tbody><tr><td colspan="6" class="section">$section.name</td></tr></tbody>
       <tbody>
       $for entry in section.entries:
-        <tr>
-          <td><a href=entry/$entry.id>$entry.title</a></td>
+        <tr data-id="$entry.id" class="entry">
+          <td>$entry.title</td>
           <td>$entry.author</td>
           <td>$entry.mediaType</td>
           <td>$entry.Publisher</td>
@@ -39,3 +39,55 @@ $def with (library)
       </tbody>
   </table>
 </div>
+<dialog>
+  <form id="editor" action="." method="post">
+    <div class="col-50p">
+        <div class="field">
+            <label for="name">Title</label>
+            <input id="title" name="title" placeholder="Title" />
+        </div>
+        <div class="field">
+            <label for="mediaType">Type</label>
+            <input id="mediaType" name="mediaType" />
+        </div>
+        <div class="field">
+            <label for="publishedBy">Published By</label>
+            <input id="publishedBy" name="publishedBy" />
+        </div>
+        <div class="field">
+            <label for="publishedLocation">Published Location</label>
+            <input id="publishedLocation" name="publishedLocation" />
+        </div>
+        <div class="field">
+            <label for="editionYear">Edition Year</label>
+            <input id="editionYear" name="editionYear" />
+        </div>
+        <div class="field">
+            <label for="catalogNumber">Catalog</label>
+            <input id="catalogNumber" name="catalogNumber" />
+        </div>
+    </div>
+    <div class="col-50p">
+        <div class="field">
+            <label for="author">Author</label>
+            <input id="author" name="author" />
+        </div>
+        <div class="field">
+            <label for="section">Section</label>
+            <input id="section" name="section" />
+        </div>
+        <div class="field">
+            <label for="publishedOn">Published On</label>
+            <input id="publishedOn" name="publishedOn" />
+        </div>
+        <div class="field">
+            <label for="edition">Edition</label>
+            <input id="edition" name="edition" />
+        </div>
+        <div class="field">
+            <label for="serialNumber">ISBN</label>
+            <input id="serialNumber" name="serialNumber" />
+        </div>
+    </div>
+</form>
+</dialog>

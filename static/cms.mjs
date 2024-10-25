@@ -92,16 +92,15 @@ function setupUploader(el) {
     }, false)
 }
 
-function setupEditor(el) {
-    console.log('setting up entry editor on el', el)
-}
+setupUploader(document.querySelector('#uploader'))
+const editorDialog = document.querySelector('dialog')
+const libraryTable = document.querySelector('#library')
 
-const uploaderEl = document.querySelector('#uploader')
-if (uploaderEl) {
-    setupUploader(uploaderEl)
-}
-
-const editorEl = document.querySelector('#editor')
-if (editorEl) {
-    setupEditor(editorEl)
-}
+libraryTable.addEventListener('click', function (event) {
+    /** @type{HTMLTableRowElement} */
+    const row = event.target.parentNode
+    if (row.className.includes('entry')) {
+        const id = row.dataset['id']
+        fetch(`/entry/${id}.json`).then()
+    }
+}, false)

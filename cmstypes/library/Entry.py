@@ -36,3 +36,6 @@ class Entry:
             return Entry(**row)
         except IndexError:
             return None
+    
+    def to_dict(self):
+        return vars(self)

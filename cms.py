@@ -13,7 +13,7 @@ render = web.template.render('templates', base='layout')
 db = web.database(dbn='sqlite', db='library.sqlite')
 urls = (
   '/', 'index',
-  '/entry/(.*)', 'entry',
+  '/entry/(.*).json', 'entry',
   '/api/openai/vision', 'vision'
 )
 
@@ -63,7 +63,10 @@ class index:
 class entry:
   def GET(self, id):
     entry = Entry.fetch(int(id), db)
-    return render.view(entry)
+    web.header('Content-Type', 'application/json')
+    return json.dumps({
+      'success': True,
+      'response': entry.to_dict()})
 
 class vision:
   def POST(self):
