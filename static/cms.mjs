@@ -93,14 +93,41 @@ function setupUploader(el) {
 }
 
 setupUploader(document.querySelector('#uploader'))
+/** @type{HTMLDialogElement} */
 const editorDialog = document.querySelector('dialog')
+
+// Close dialog if you click outside of it
+// adapted from https://stackoverflow.com/a/26984690/16959
+editorDialog.addEventListener('click', function (event) {
+    const rect = editorDialog.getBoundingClientRect();
+    if (!(rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX && event.clientX <= rect.left + rect.width)) {
+        editorDialog.close();
+    }
+})
+
+/** @type{HTMLTableElement} */
 const libraryTable = document.querySelector('#library')
 
 libraryTable.addEventListener('click', function (event) {
     /** @type{HTMLTableRowElement} */
     const row = event.target.parentNode
     if (row.className.includes('entry')) {
-        const id = row.dataset['id']
-        fetch(`/entry/${id}.json`).then()
+        fetch(`/entry/${row.dataset['id']}.json`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    Object.keys(data.response).forEach((key) => {
+                        /** @type{HTMLInputElement | null} */
+                        const input = editorDialog.querySelector(`input[name='${key}']`)
+                        if (input) {
+                            input.value = data.response[key]
+                        }
+                    });
+                    editorDialog.showModal();
+                } else {
+                    throw new Error("Cannot find entry")
+                }
+            })
     }
 }, false)
