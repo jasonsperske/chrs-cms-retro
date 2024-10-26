@@ -1,10 +1,10 @@
 :root {
+    --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 }
 
 ::backdrop {
-    background-color: black;
-    opacity: 0.75;
+    background-color: rgba(0, 0, 0, .8);
 }
 
 *,
@@ -86,6 +86,7 @@ body {
 
 .entry:hover {
     background-color: rgba(10, 10, 10, 0.1);
+    background-color: hsl(var(--muted) / .5);
 }
 
 .grow {
@@ -107,6 +108,30 @@ td.section {
     font-weight: 700;
     font-size: 1.125rem;
     line-height: 1.75rem;
+}
+
+#editor {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#editor-actions {
+    flex-direction: row-reverse;
+    display: flex;
+    gap: 1rem;
+}
+
+#editor-actions button {
+    border-radius: 0.75rem;
+    line-height: 1.75rem;
+    border-width: thin;
+    padding-inline: 1rem;
+}
+
+.danger {
+    background-color: red;
+    color: white;
 }
 
 .inputs {
