@@ -1,3 +1,5 @@
+import { AnalyzeBookResponse } from "./openai/AnalyzeBookResponse.mjs"
+
 /**
  * Sets up the uploader from a form element
  * @param {HTMLFormElement} el root element
@@ -73,7 +75,7 @@ function setupUploader(el) {
         event.preventDefault()
         const formData = new FormData();
         /** @type{HTMLInputElement | null} */
-        const section = el.querySelector('input[name=section]')
+        const section = el.querySelector('input[name=section]').value
         filecache.forEach((file) => formData.append("files", file));
         fetch("/api/openai/vision", { method: "POST", body: formData })
             .then((response) => response.json())
@@ -81,9 +83,10 @@ function setupUploader(el) {
                 if (!data.success) {
                     throw new Error("Failed to process images");
                 }
-                const payload = data.response.choices[0].message.content;
+                const payload = data.response;
                 if (payload.startsWith("```json") && payload.endsWith("```")) {
-                    console.log(JSON.parse(payload.slice(7, -3)), section.value)
+                    const analyzedBookResponse = new AnalyzeBookResponse(JSON.parse(payload.slice(7, -3)), section)
+                    console.log(analyzedBookResponse)
                 } else {
                     throw new Error("Failed to parse response");
                 }

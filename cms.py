@@ -91,7 +91,7 @@ class vision:
     web.header('Content-Type', 'application/json')
     return json.dumps({
       'success': True,
-      'response': response.to_dict()})
+      'response': response.choices[0].message.content})
 
 if __name__ == "__main__":
   app = web.application(urls, globals())
