@@ -8,9 +8,15 @@ function setupUploader(el) {
     /** @type{Element} */
     const imageBucket = el.querySelector("#image-bucket")
     /** @type{Element} */
+    const imageBucketStatus = imageBucket.querySelector('#image-bucket-status')
+    /** @type{Element} */
     const imageBucketThumbnails = imageBucket.querySelector('#image-bucket-thumbnails')
+    /** @type{Element} */
+    const variations = document.querySelector('#variations')
     /** @type{HTMLButtonElement} */
     const submitButton = el.querySelector('button[type=submit]')
+    /** @type{HTMLInputElement} */
+    const section = el.querySelector('input[name=section]')
 
     /** @type{File[]} */
     let filecache = []
@@ -18,6 +24,8 @@ function setupUploader(el) {
 
     function setIsProcessing(is) {
         isProcessing = is
+        submitButton.disabled = isProcessing
+        imageBucketStatus.textContent = isProcessing ? "Processing..." : "Drop images here"
     }
 
     /**
@@ -72,26 +80,35 @@ function setupUploader(el) {
     }, false)
 
     el.addEventListener('submit', function (event) {
-        event.preventDefault()
-        const formData = new FormData();
-        /** @type{HTMLInputElement | null} */
-        const section = el.querySelector('input[name=section]').value
-        filecache.forEach((file) => formData.append("files", file));
+        event.preventDefault();
+        setIsProcessing(true)
+        const formData = new FormData()
+        filecache.forEach((file) => formData.append("files", file))
         fetch("/api/openai/vision", { method: "POST", body: formData })
             .then((response) => response.json())
             .then((data) => {
                 if (!data.success) {
-                    throw new Error("Failed to process images");
+                    throw new Error("Failed to process images")
                 }
                 const payload = data.response;
                 if (payload.startsWith("```json") && payload.endsWith("```")) {
-                    const analyzedBookResponse = new AnalyzeBookResponse(JSON.parse(payload.slice(7, -3)), section)
-                    console.log(analyzedBookResponse)
+                    const analyzedBookResponse = new AnalyzeBookResponse(JSON.parse(payload.slice(7, -3)), section.value)
+                    variations.innerHTML = ""
+                    for (const interpretation of analyzedBookResponse.interpretations) {
+                        variations.appendChild(interpretation.createVariationCard((entry) => {
+                            console.log(entry)
+                        }))
+                    }
                 } else {
-                    throw new Error("Failed to parse response");
+                    throw new Error("Failed to parse response")
                 }
             })
-            .finally(() => setIsProcessing(false));
+            .catch((error) => {
+                variations.textContent = error.message
+            })
+            .finally(() => {
+                setIsProcessing(false)
+            });
     }, false)
 }
 

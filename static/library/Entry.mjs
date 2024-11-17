@@ -67,6 +67,32 @@ export class Entry {
         return new Entry(data.title, data.mediaType, { ...data })
     }
 
+    /**
+     * @param {(entry: Entry) => void} onClick 
+     * @returns {HTMLDivElement}
+     */
+    createVariationCard(onClick) {
+        const el = document.createElement('div')
+        el.classList.add('variation-card')
+        el.innerHTML = `
+            <h3>${this.#title} (${this.#mediaType})</h3>
+            ${this.#author ? `<p>by ${this.#author}</p>` : ""}
+            <p>
+                ${this.#publishedBy ? `published by ${this.#publishedBy}` : ""}
+                ${this.#publishedLocation ? `, ${this.#publishedLocation}` : ""}
+                ${this.#publishedOn ? ` (${this.#publishedOn})` : ""}
+            </p>
+            <p>
+                ${this.#edition ? `Edition ${this.#edition}` : ""}
+                ${this.#editionYear ? ` (${this.#editionYear})` : ""}
+            </p>
+            ${this.#serialNumber ? `<p>isbn:${this.#serialNumber}</p>` : ""}
+            ${this.#catalogNumber ? `<p>catalog:${this.#catalogNumber}</p>` : ""}
+        `
+        el.addEventListener('click', () => onClick(this))
+        return el
+    }
+
     withId(id) {
         this.#id = id
         return this

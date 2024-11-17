@@ -77,7 +77,6 @@ export class AnalyzeBookResponse {
             return obj
         }
 
-
         const year = ifDefined('yearPublished', response)
         const month = ifDefined('monthPublished', response)
         let publishedOn = ""

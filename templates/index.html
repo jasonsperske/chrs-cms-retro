@@ -4,13 +4,14 @@ $def with (library)
   <form id="uploader" action="/api/openai/vision" enctype="multipart/form-data" method="POST">
     <div>
       <div id="image-bucket">
-        <div>Drop images here</div>
+        <div id="image-bucket-status">Drop images here</div>
         <div id="image-bucket-thumbnails"></div>
       </div>
       <input name="section" placeholder="Section" value="">
     </div>
     <button type="submit" disabled>Submit</button>
   </form>
+  <div id="variations"></div>
 </div>
 <div class="row">
   <table id="library">
