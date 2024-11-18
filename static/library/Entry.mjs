@@ -93,6 +93,20 @@ export class Entry {
         return el
     }
 
+    /**
+     * @param {HTMLTemplateElement} template 
+     * @returns {HTMLTableRowElement}
+     */
+    createTableRow(template) {
+        const row = template.content.firstElementChild.cloneNode(true)
+        row.dataset.id = this.#id
+        const fields = row.querySelectorAll('[data-field]')
+        fields.forEach(field => {
+            field.textContent = this[field.dataset.field]
+        })
+        return row
+    }
+
     withId(id) {
         this.#id = id
         return this

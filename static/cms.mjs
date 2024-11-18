@@ -1,5 +1,12 @@
 import { AnalyzeBookResponse } from "./openai/AnalyzeBookResponse.mjs"
 
+/** @type{HTMLTableElement} */
+const libraryTable = document.querySelector('#library')
+/** @type{HTMLTableBodyElement} */
+const newEntries = document.querySelector('#new-entries')
+/** @type{HTMLTemplateElement} */
+const entryTemplate = document.querySelector('#entry-template')
+
 /**
  * Sets up the uploader from a form element
  * @param {HTMLFormElement} el root element
@@ -21,6 +28,33 @@ function setupUploader(el) {
     /** @type{File[]} */
     let filecache = []
     let isProcessing = false
+
+    function selectEntry(entry) {
+        fetch(
+            '/',
+            {
+                method: "PUT",
+                body: entry.asFormData()
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // prepend the entry to the new entries tbody
+                    newEntries
+                        .prepend(
+                            entry.withId(data.response.id)
+                                .createTableRow(entryTemplate))
+                    // clear the file cache
+                    filecache = []
+                    // clear the image bucket thumbnails
+                    imageBucketThumbnails.innerHTML = ""
+                    // clear the variations
+                    variations.innerHTML = ""
+                } else {
+                    throw new Error("Failed to update entry")
+                }
+            })
+    }
 
     function setIsProcessing(is) {
         isProcessing = is
@@ -95,9 +129,7 @@ function setupUploader(el) {
                     const analyzedBookResponse = new AnalyzeBookResponse(JSON.parse(payload.slice(7, -3)), section.value)
                     variations.innerHTML = ""
                     for (const interpretation of analyzedBookResponse.interpretations) {
-                        variations.appendChild(interpretation.createVariationCard((entry) => {
-                            console.log(entry)
-                        }))
+                        variations.appendChild(interpretation.createVariationCard(selectEntry))
                     }
                 } else {
                     throw new Error("Failed to parse response")
@@ -114,7 +146,18 @@ function setupUploader(el) {
 
 setupUploader(document.querySelector('#uploader'))
 /** @type{HTMLDialogElement} */
-const editorDialog = document.querySelector('dialog')
+const editorDialog = document.querySelector('dialog#editor-dialog')
+/** @type{HTMLFormElement} */
+const editorForm = editorDialog.querySelector('form#editor-form')
+/** @type{HTMLButtonElement} */
+const editorConfirmDeleteButton = editorDialog.querySelector('button[role="delete"]')
+
+/** @type{HTMLDialogElement} */
+const deleteDialog = document.querySelector('dialog#delete-dialog')
+/** @type{HTMLFormElement} */
+const deleteForm = deleteDialog.querySelector('form#delete-form')
+/** @type{HTMLButtonElement} */
+const deleteCancelButton = deleteDialog.querySelector('button[role="cancel"]')
 
 // Close dialog if you click outside of it
 // adapted from https://stackoverflow.com/a/26984690/16959
@@ -122,18 +165,24 @@ editorDialog.addEventListener('click', function (event) {
     const rect = editorDialog.getBoundingClientRect();
     if (!(rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
         rect.left <= event.clientX && event.clientX <= rect.left + rect.width)) {
-        editorDialog.close();
+        editorDialog.close()
     }
 })
 
-/** @type{HTMLTableElement} */
-const libraryTable = document.querySelector('#library')
+deleteDialog.addEventListener('click', function (event) {
+    const rect = deleteDialog.getBoundingClientRect();
+    if (!(rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX && event.clientX <= rect.left + rect.width)) {
+        deleteDialog.close()
+    }
+})
 
 libraryTable.addEventListener('click', function (event) {
     /** @type{HTMLTableRowElement} */
     const row = event.target.parentNode
     if (row.className.includes('entry')) {
-        fetch(`/entry/${row.dataset['id']}.json`)
+        const url = `/entry/${row.dataset['id']}.json`
+        fetch(url)
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
@@ -144,10 +193,58 @@ libraryTable.addEventListener('click', function (event) {
                             input.value = data.response[key]
                         }
                     });
-                    editorDialog.showModal();
+                    editorForm.action = url
+                    editorDialog.showModal()
                 } else {
                     throw new Error("Cannot find entry")
                 }
             })
     }
+}, false)
+
+editorForm.addEventListener('submit', function (event) {
+    event.preventDefault()
+    fetch(editorForm.action, { method: "POST", body: new FormData(editorForm) })
+        .then((response) => response.json())
+        .then((data) => {
+            editorDialog.close()
+            // find table row associated with this entry
+            const row = libraryTable.querySelector(`tr[data-id='${data.response.id}']`)
+            if (row) {
+                // update the row with the new data
+                Object.keys(data.response).forEach((key) => {
+                    // find fields with data-field attribute matching key
+                    const field = row.querySelector(`[data-field='${key}']`)
+                    if (field) {
+                        field.textContent = data.response[key]
+                    }
+                })
+            }
+        })
+}, false)
+
+deleteForm.addEventListener('submit', function (event) {
+    event.preventDefault()
+    fetch(deleteForm.action, { method: "DELETE", body: new FormData(deleteForm) })
+        .then((response) => response.json())
+        .then((data) => {
+            deleteDialog.close()
+            editorDialog.close()
+            // find table row associated with this entry and remove it
+            const row = libraryTable.querySelector(`tr[data-id='${data.response.id}']`)
+            if (row) {
+                row.remove()
+            }
+        })
+}, false)
+
+editorConfirmDeleteButton.addEventListener('click', function (event) {
+    event.preventDefault()
+    deleteForm.action = editorForm.action
+    deleteDialog.showModal()
+}, false)
+
+deleteCancelButton.addEventListener('click', function (event) {
+    deleteDialog.close()
+    editorDialog.close()
 }, false)

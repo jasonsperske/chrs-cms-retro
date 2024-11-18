@@ -122,7 +122,7 @@ td.section {
     gap: 1rem;
 }
 
-#editor-actions button {
+dialog button {
     border-radius: 0.5rem;
     line-height: 1.75rem;
     border-width: 1px;
@@ -131,7 +131,7 @@ td.section {
     background: linear-gradient(to right, #e2e2e2, #b6b6b6);
 }
 
-#editor-actions button.danger {
+dialog button.danger {
     background: linear-gradient(to right, #ff6b6b, #ff4757);
     color: white;
 }

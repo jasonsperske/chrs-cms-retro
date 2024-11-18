@@ -59,6 +59,13 @@ class index:
     library = Library.fetch(db)
     
     return render.index(library)
+  
+  def PUT(self):
+    entry = Entry.insert(web.input(), db)
+    web.header('Content-Type', 'application/json')
+    return json.dumps({
+      'success': True,
+      'response': entry.to_dict()})
 
 class entry:
   def GET(self, id):
@@ -67,6 +74,25 @@ class entry:
     return json.dumps({
       'success': True,
       'response': entry.to_dict()})
+
+  def POST(self, id):
+    entry = Entry.fetch(int(id), db)
+    entry.update(web.input(), db)
+    web.header('Content-Type', 'application/json')
+    return json.dumps({
+      'success': True, 
+      'response': {
+        'Publisher': entry.Publisher, 
+        'Edition': entry.Edition, 
+        'SerialNumbers': entry.SerialNumbers
+        } | entry.to_dict()
+      })
+  
+  def DELETE(self, id):
+    entry = Entry.fetch(int(id), db)
+    entry.delete(db)
+    web.header('Content-Type', 'application/json')
+    return json.dumps({'success': True, 'response': { 'id': id  }})
 
 class vision:
   def POST(self):

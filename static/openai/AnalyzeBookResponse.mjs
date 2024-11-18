@@ -17,7 +17,7 @@ function stripAINoise(input, leadingNoise = []) {
     if (input == null) {
         return ''
     } else if (typeof input == 'string') {
-        const EmptyValueAliases = ['null', 'undefined', 'not available', 'not specified']
+        const EmptyValueAliases = ['null', 'undefined', 'not available', 'not specified', 'unknown']
         if (EmptyValueAliases.includes(input.toLowerCase()))
             return ''
         if (leadingNoise.length > 0) {

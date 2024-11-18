@@ -29,6 +29,7 @@ class Entry:
             "catalog:{}".format(self.catalogNumber) if len(self.catalogNumber) else ""
         ]))
     
+    @staticmethod
     def fetch(id, db):
         params = dict(id=id)
         try:
@@ -36,6 +37,18 @@ class Entry:
             return Entry(**row)
         except IndexError:
             return None
+    
+    @staticmethod
+    def insert(data, db):
+        data['id'] = db.insert('library', **data)
+        return Entry(**data)
+    
+    def update(self, data, db):
+        db.update('library', vars={'id': self.id} | data, where="id=$id", **data)
+        self.__dict__.update(data)
+    
+    def delete(self, db):
+        db.delete('library', vars={'id': self.id}, where="id=$id")
     
     def to_dict(self):
         return vars(self)
