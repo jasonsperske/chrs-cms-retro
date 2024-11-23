@@ -95,11 +95,11 @@ function setupUploader(el) {
         submitButton.disabled = filecache.length === 0
     }
 
-    imageBucket.addEventListener('dragover', function (event) {
+    el.addEventListener('dragover', function (event) {
         event.preventDefault()
     }, false)
 
-    imageBucket.addEventListener('drop', function (/** @type{DragEvent} */ event) {
+    el.addEventListener('drop', function (/** @type{DragEvent} */ event) {
         event.preventDefault()
         if (event.dataTransfer.items) {
             updateThumbnails([
