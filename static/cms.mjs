@@ -95,11 +95,11 @@ function setupUploader(el) {
         submitButton.disabled = filecache.length === 0
     }
 
-    el.addEventListener('dragover', function (event) {
+    document.addEventListener('dragover', function (event) {
         event.preventDefault()
     }, false)
 
-    el.addEventListener('drop', function (/** @type{DragEvent} */ event) {
+    document.addEventListener('drop', function (/** @type{DragEvent} */ event) {
         event.preventDefault()
         if (event.dataTransfer.items) {
             updateThumbnails([
